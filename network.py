@@ -1,8 +1,11 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from main import EnergyManager
+from tapo.requests import EnergyDataInterval
 
 app = FastAPI()
+energyManager = EnergyManager()
 
 class Item(BaseModel):
     name: str
@@ -13,7 +16,6 @@ class Item(BaseModel):
 async def read_root():
     return {"Hello": "World"}
 
-
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
@@ -21,3 +23,17 @@ async def read_item(item_id: int, q: Union[str, None] = None):
 @app.put("/items/{item_id}")
 async def update_item(item_id: int, item: Item):
     return {"item_name": item.name, "item_id": item_id}
+
+@app.get("/energyUsage/user/{user_email}/frequency/{frequency}")
+async def read_item(user_email: str, frequency: EnergyDataInterval):
+    try:
+        device = await energyManager.authenticate(user_email)
+        if not device:
+            raise HTTPException(status_code=404, detail="User not found or device not authenticated")
+        
+        energyValues = await energyManager.showEnergyData(device, frequency)
+
+        response =  {"energy_usage": energyValues}
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
