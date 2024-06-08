@@ -32,27 +32,22 @@ class EnergyManager:
         energy_usage = await device.get_energy_usage()
         print(f"Energy usage: {energy_usage.to_dict()} \n\n")
 
-    async def showEnergyData(self, device, format: DataFrequency) -> str:
-        response = ""
+    async def showEnergyData(self, device, format: EnergyDataInterval) -> str:
         today = datetime.today()
-        
+
         if(format == DataFrequency.Hourly):
-            energy_data_hourly = await device.get_energy_data(EnergyDataInterval.Hourly, today)
-            print(f"Energy data (hourly): {energy_data_hourly.to_dict()} \n\n")
+            energy_data_hourly = await device.get_energy_data(format,
+                                                              today)
+            return energy_data_hourly.to_dict()
         elif(format == DataFrequency.Daily):
             energy_data_daily = await device.get_energy_data(
-            EnergyDataInterval.Daily,
-            datetime(today.year, 3 * ((today.month - 1) // 3) + 1, 1),)
-            print(f"Energy data (daily): {energy_data_daily.to_dict()} \n\n")
+                format,
+                datetime(today.year, 3 * ((today.month - 1) // 3) + 1, 1),)
+            return energy_data_daily.to_dict()
         elif(format == DataFrequency.Monthly):
             energy_data_monthly = await device.get_energy_data(
-            EnergyDataInterval.Monthly,
-            datetime(today.year, 1, 1),)
-            print(f"Energy data (monthly): {energy_data_monthly.to_dict()} \n\n")
-        
-
-        
-
-        
-        
-        return energy_data_monthly.to_dict()
+                format,
+                datetime(today.year, 1, 1),)
+            return energy_data_monthly.to_dict()
+        else:
+            return 'Incorrect EnergyDataInterval'
