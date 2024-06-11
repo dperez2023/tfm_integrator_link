@@ -2,7 +2,6 @@ from typing import Union
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from main import EnergyManager
-from tapo.requests import EnergyDataInterval
 
 app = FastAPI()
 energyManager = EnergyManager()
@@ -25,7 +24,7 @@ async def update_item(item_id: int, item: Item):
     return {"item_name": item.name, "item_id": item_id}
 
 @app.get("/energyUsage/user/{user_email}/frequency/{frequency}")
-async def read_item(user_email: str, frequency: EnergyDataInterval):
+async def read_item(user_email: str, frequency: str):
     try:
         device = await energyManager.authenticate(user_email)
         if not device:

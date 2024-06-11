@@ -6,8 +6,15 @@ from tapo import ApiClient
 from tapo.requests import EnergyDataInterval
 
 from enum import Enum
+from pydantic import BaseModel
 
-DataFrequency = Enum('DataFrequency', ['Hourly', 'Daily', 'Monthly'])
+class DataFrequency(str, Enum):
+    hourly = 'hourly'
+    daily = 'daily'
+    monthly = 'monthly'
+
+class DataFrequencyModel(BaseModel):
+    name: DataFrequency
 
 class EnergyManager:
     async def authenticate(self, username):
@@ -32,21 +39,22 @@ class EnergyManager:
         energy_usage = await device.get_energy_usage()
         print(f"Energy usage: {energy_usage.to_dict()} \n\n")
 
-    async def showEnergyData(self, device, format: EnergyDataInterval) -> str:
+    async def showEnergyData(self, device, format: str) -> str:
         today = datetime.today()
 
-        if(format == DataFrequency.Hourly):
-            energy_data_hourly = await device.get_energy_data(format,
-                                                              today)
+        if(format == DataFrequency.hourly):
+            energy_data_hourly = await device.get_energy_data(
+                EnergyDataInterval.Hourly,
+                today)
             return energy_data_hourly.to_dict()
-        elif(format == DataFrequency.Daily):
+        elif(format == DataFrequency.daily):
             energy_data_daily = await device.get_energy_data(
-                format,
+                EnergyDataInterval.Daily,
                 datetime(today.year, 3 * ((today.month - 1) // 3) + 1, 1),)
             return energy_data_daily.to_dict()
-        elif(format == DataFrequency.Monthly):
+        elif(format == DataFrequency.monthly):
             energy_data_monthly = await device.get_energy_data(
-                format,
+                EnergyDataInterval.Monthly,
                 datetime(today.year, 1, 1),)
             return energy_data_monthly.to_dict()
         else:
