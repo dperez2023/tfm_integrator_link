@@ -26,7 +26,7 @@ class EnergyManager:
         device = await client.p110(ip_address)
         return device
 
-    async def showDeviceInfo(device) :
+    async def showDeviceInfo(self, device) :
         device_info = await device.get_device_info()
         print(f"Device info: {device_info.to_dict()} \n\n")
 

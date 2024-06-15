@@ -31,8 +31,10 @@ async def read_item(user_email: str, frequency: str):
             raise HTTPException(status_code=404, detail="User not found or device not authenticated")
         
         energyValues = await energyManager.showEnergyData(device, frequency)
+        deviceValues = await energyManager.showDeviceInfo(device)
 
         response =  {"energy_usage": energyValues}
+        #response = {"device_values": deviceValues}
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
